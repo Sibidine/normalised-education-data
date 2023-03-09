@@ -1,0 +1,23 @@
+create table country_code(
+	country_id serial,
+	code varchar(3)
+);
+
+
+drop procedure if exists fill_country_code();
+create procedure fill_country_code()
+as $$
+declare
+	col record;
+begin
+	for col in (select distinct(country_code) from edstats_data order by country_code)
+	loop
+		execute format('insert into country_code(code) values ('
+					  || quote_literal(col.country_code::varchar)
+					  || ')');
+	end loop;
+end;
+$$ language 'plpgsql'
+
+call fill_country_code();
+
